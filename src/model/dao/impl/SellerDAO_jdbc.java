@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -26,7 +27,36 @@ public class SellerDAO_jdbc implements SellerDAO {
 	
 	@Override
 	public void insert(Seller obj) {
-		// TODO Auto-generated method stub
+		PreparedStatement st = null;
+		
+		try {
+			st = conn.prepareStatement(
+					"INSERT INTO seller " +
+					"(Name, Email, BirthDate, BaseSalary, DepartmentId) " +
+					"VALUES " +
+					"(?, ?, ?, ?, ?)", Statement.RETURN_GENERATED_KEYS);
+			st.setString(1, obj.getName());
+			st.setString(2, obj.getName());
+			st.setDate(3, new java.sql.Date(obj.getBirthDate().getTime()));
+			st.setDouble(4, obj.getBaseSalary());
+			st.setInt(5, obj.getDepartment().getId());
+			
+			int rowsAffected = st.executeUpdate();
+			
+			if (rowsAffected > 0) {
+				ResultSet rs = st.getGeneratedKeys();
+				if (rs.next()) {
+					int id = rs.getInt(1);
+					obj.setId(id);
+				}
+				DB.closeResultSet(rs);
+			} else {
+				throw new DbException("Unexpected error! No rows affected");
+			}
+					
+		} catch (SQLException ex) {
+			throw new DbException(ex.getMessage());
+		}
 	}
 
 	@Override
@@ -146,6 +176,7 @@ public class SellerDAO_jdbc implements SellerDAO {
 		}
 	}
 	
+	
 private Seller instantianteSeller(ResultSet rs, Department dep) throws SQLException {
 	    Seller obj = new Seller();
     	obj.setId(rs.getInt("Id"));
@@ -157,7 +188,6 @@ private Seller instantianteSeller(ResultSet rs, Department dep) throws SQLExcept
 	
 	return obj;
 }
-
 private Department instantianteDepartment(ResultSet rs) throws SQLException {
       Department dep = new Department();
       dep.setId(rs.getInt("DepartmentId"));

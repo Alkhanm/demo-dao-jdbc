@@ -25,10 +25,17 @@ public class Program {
 		list = sellerDAO.findAll();
         list.forEach(System.out::println);
         
-    	System.out.println("=== TEST 3: seller insert ===");
+    	System.out.println("=== TEST 4: seller insert ===");
     	Seller newSeller = new Seller(null, "Greg", "greg@gmail.com", new Date(), 4000.0, new Department(1, ""));
 		sellerDAO.insert(newSeller);
         System.out.println("Inserted! New id: " + newSeller.getId());
+        
+        System.out.println("=== TEST 5: seller insert ===");
+		seller = sellerDAO.findByID(1);
+		seller.setName("Martha Waine");
+		seller.setEmail("mommybat@gmail.com");
+		sellerDAO.update(seller);
+		System.out.println("Update completed!");
 	}
 }
 
